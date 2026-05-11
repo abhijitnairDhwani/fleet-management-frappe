@@ -1,3 +1,15 @@
+"""Trip controller.
+
+The Trip document keeps only validation and submit-time guard logic.
+Cross-doctype writes (Vehicle odometer roll-forward / roll-back,
+current_driver assignment, status flips) are owned by
+``fleet_management.services.vehicle_state`` and wired in via ``doc_events``
+in ``hooks.py``. This keeps the controller thin and the Vehicle mutation
+points consolidated for concurrency handling.
+"""
+
+from __future__ import annotations
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -6,8 +18,9 @@ from frappe.model.document import Document
 class Trip(Document):
 	def validate(self):
 		self._compute_distance()
-		self._check_vehicle_available()
-		self._check_driver_active()
+		if self.docstatus == 0:
+			self._check_vehicle_available()
+			self._check_driver_active()
 
 	def before_submit(self):
 		if not self.end_datetime or self.end_odo is None:
@@ -16,30 +29,7 @@ class Trip(Document):
 			frappe.throw(_("Distance must be greater than zero to submit a trip."))
 		self.status = "Completed"
 
-	def on_submit(self):
-		vehicle = frappe.get_doc("Vehicle", self.vehicle)
-		vehicle.odometer_km = max(vehicle.odometer_km or 0, self.end_odo or 0)
-		vehicle.current_driver = self.driver
-		if vehicle.status == "In-Use":
-			vehicle.status = "Active"
-		vehicle.save(ignore_permissions=True)
-
-	def on_cancel(self):
-		self.status = "Cancelled"
-		vehicle = frappe.get_doc("Vehicle", self.vehicle)
-		# Roll the odometer back to the highest end_odo of any *remaining* submitted
-		# trip for this vehicle. The starting odometer at vehicle creation acts as a floor.
-		new_max = (
-			frappe.db.sql(
-				"""SELECT MAX(end_odo) FROM `tabTrip`
-			   WHERE vehicle=%s AND docstatus=1 AND name != %s""",
-				(self.vehicle, self.name),
-			)[0][0]
-			or 0
-		)
-		vehicle.odometer_km = new_max
-		vehicle.save(ignore_permissions=True)
-
+	# -------------------------------------------------------------- helpers
 	def _compute_distance(self):
 		if self.start_odo is not None and self.end_odo is not None:
 			if self.end_odo < self.start_odo:
@@ -56,7 +46,7 @@ class Trip(Document):
 		if not self.vehicle:
 			return
 		vstatus = frappe.db.get_value("Vehicle", self.vehicle, "status")
-		if vstatus in ("Retired", "Maintenance") and self.docstatus == 0:
+		if vstatus in ("Retired", "Maintenance"):
 			frappe.throw(
 				_("Vehicle {0} is currently {1} and cannot be assigned to a trip.").format(
 					self.vehicle, vstatus

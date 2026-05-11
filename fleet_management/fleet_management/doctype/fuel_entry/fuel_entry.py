@@ -1,3 +1,13 @@
+"""Fuel Entry controller.
+
+Validation only — the one-shot odometer roll-forward on insert lives in
+``fleet_management.services.vehicle_state.on_fuel_entry_after_insert`` and
+is wired via ``doc_events`` in ``hooks.py``. That avoids the previous
+``on_update`` side-effect that fired on every typo correction.
+"""
+
+from __future__ import annotations
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -10,11 +20,3 @@ class FuelEntry(Document):
 		if self.cost_per_litre is not None and self.cost_per_litre < 0:
 			frappe.throw(_("Cost per litre cannot be negative."))
 		self.total_cost = (self.litres or 0) * (self.cost_per_litre or 0)
-
-	def on_update(self):
-		if not self.odometer:
-			return
-		vehicle = frappe.get_doc("Vehicle", self.vehicle)
-		if self.odometer > (vehicle.odometer_km or 0):
-			vehicle.odometer_km = self.odometer
-			vehicle.save(ignore_permissions=True)
