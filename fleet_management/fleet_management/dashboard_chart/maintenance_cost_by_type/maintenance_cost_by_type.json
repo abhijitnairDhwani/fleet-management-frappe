@@ -9,7 +9,7 @@
  "doctype": "Dashboard Chart",
  "document_type": "Maintenance Log",
  "dynamic_filters_json": "[]",
- "filters_json": "[[\"Maintenance Log\",\"docstatus\",\"=\",1,false]]",
+ "filters_json": "[[\"Maintenance Log\",\"docstatus\",\"=\",1]]",
  "group_by_based_on": "service_type",
  "group_by_type": "Sum",
  "is_public": 1,

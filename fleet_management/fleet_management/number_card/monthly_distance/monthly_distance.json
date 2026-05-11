@@ -5,7 +5,7 @@
  "doctype": "Number Card",
  "document_type": "Trip",
  "dynamic_filters_json": "[]",
- "filters_json": "[[\"Trip\",\"docstatus\",\"=\",1,false]]",
+ "filters_json": "[[\"Trip\",\"docstatus\",\"=\",1]]",
  "function": "Sum",
  "is_public": 1,
  "is_standard": 1,
