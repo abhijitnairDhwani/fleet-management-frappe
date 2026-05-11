@@ -1,29 +1,31 @@
-"""Tests for Driver: license expiry warnings."""
+"""Driver controller tests.
 
-import unittest
+The controller is now silent — license-expiry surfacing lives in the client
+script and the daily scheduler. These tests assert that the controller
+*does not* reject any of the three license-state cases (valid / near /
+expired).
+"""
+
+from __future__ import annotations
+
 from datetime import date, timedelta
 
 import frappe
+from frappe.tests import IntegrationTestCase
 
 
-class TestDriver(unittest.TestCase):
-	def tearDown(self):
-		for name in frappe.get_all("Driver", filters={"license_no": ["like", "TEST-LIC-%"]}, pluck="name"):
-			frappe.delete_doc("Driver", name, force=True, ignore_permissions=True)
-		frappe.db.commit()
-
+class TestDriver(IntegrationTestCase):
 	def test_save_succeeds_for_valid_long_horizon_license(self):
 		d = _new_driver("TEST-LIC-VALID", days_to_expiry=365)
 		d.insert()
 		self.assertTrue(d.name)
 
-	def test_save_succeeds_for_expiring_within_30d_with_warning_emitted(self):
-		# A near-expiry license should NOT block save — it emits an orange msgprint.
+	def test_save_succeeds_for_expiring_within_30d(self):
 		d = _new_driver("TEST-LIC-NEAR", days_to_expiry=10)
 		d.insert()
 		self.assertTrue(d.name)
 
-	def test_save_succeeds_for_expired_license_with_red_warning(self):
+	def test_save_succeeds_for_expired_license(self):
 		d = _new_driver("TEST-LIC-EXP", days_to_expiry=-5)
 		d.insert()
 		self.assertTrue(d.name)

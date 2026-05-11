@@ -33,9 +33,11 @@
    "label": "Vehicle",
    "options": "Vehicle",
    "reqd": 1,
-   "in_list_view": 1
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
   },
-  {"fieldname": "service_date", "fieldtype": "Date", "label": "Service Date", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "service_date", "fieldtype": "Date", "label": "Service Date", "reqd": 1, "in_list_view": 1, "search_index": 1},
   {"fieldname": "column_break_1", "fieldtype": "Column Break"},
   {
    "fieldname": "service_type",
@@ -43,7 +45,8 @@
    "label": "Service Type",
    "options": "Routine\nRepair\nTyre Change\nOil Change\nBreakdown\nOther",
    "reqd": 1,
-   "in_list_view": 1
+   "in_list_view": 1,
+   "in_standard_filter": 1
   },
   {"fieldname": "odometer_at_service", "fieldtype": "Float", "label": "Odometer at Service (km)"},
   {"fieldname": "section_break_1", "fieldtype": "Section Break"},
@@ -67,6 +70,6 @@
  "search_fields": "vehicle,service_type,vendor",
  "sort_field": "modified",
  "sort_order": "DESC",
- "track_changes": 1,
- "states": []
+ "title_field": "vehicle",
+ "track_changes": 1
 }

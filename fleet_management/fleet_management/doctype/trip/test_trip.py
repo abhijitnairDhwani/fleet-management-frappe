@@ -1,28 +1,29 @@
-"""Tests for the Trip lifecycle: validate, submit, cancel."""
+"""Trip lifecycle tests.
 
-import unittest
-from datetime import datetime, timedelta
+Uses ``IntegrationTestCase`` so every test rolls back at the class level and
+each ``setUp`` resets shared state — no manual ``frappe.db.commit()`` and no
+``tearDownClass`` cleanup is required.
+"""
+
+from __future__ import annotations
+
+from datetime import date, datetime, timedelta
 
 import frappe
+from frappe.tests import IntegrationTestCase
 
 
-class TestTrip(unittest.TestCase):
+class TestTrip(IntegrationTestCase):
 	@classmethod
 	def setUpClass(cls):
+		super().setUpClass()
 		cls.vehicle = _ensure_vehicle("TEST-V-001", "Active", 10000)
 		cls.driver = _ensure_driver("TEST-DR-001", "Test Driver", days_to_expiry=365)
 
-	@classmethod
-	def tearDownClass(cls):
-		_purge_trips(cls.vehicle)
-		frappe.db.delete("Vehicle", {"name": cls.vehicle})
-		frappe.db.delete("Driver", {"license_no": "TEST-DR-001"})
-		frappe.db.commit()
-
 	def setUp(self):
+		super().setUp()
 		_purge_trips(self.vehicle)
 		frappe.db.set_value("Vehicle", self.vehicle, {"odometer_km": 10000, "status": "Active"})
-		frappe.db.commit()
 
 	# --------------------------------------------------------- validate
 	def test_distance_computed_on_validate(self):
@@ -37,28 +38,41 @@ class TestTrip(unittest.TestCase):
 
 	def test_cannot_assign_to_vehicle_in_maintenance(self):
 		frappe.db.set_value("Vehicle", self.vehicle, "status", "Maintenance")
-		frappe.db.commit()
 		t = _new_trip(self.vehicle, self.driver, start_odo=10000, end_odo=10100)
 		with self.assertRaises(frappe.ValidationError):
 			t.save()
-		frappe.db.set_value("Vehicle", self.vehicle, "status", "Active")
-		frappe.db.commit()
 
 	# ----------------------------------------------------------- submit
 	def test_on_submit_rolls_vehicle_odometer_forward(self):
 		t = _new_trip(self.vehicle, self.driver, start_odo=10000, end_odo=10300)
 		t.insert()
 		t.submit()
-		odo = frappe.db.get_value("Vehicle", self.vehicle, "odometer_km")
-		self.assertEqual(odo, 10300)
+		self.assertEqual(frappe.db.get_value("Vehicle", self.vehicle, "odometer_km"), 10300)
 
-	def test_on_submit_sets_current_driver(self):
+	def test_on_submit_sets_current_driver_for_recent_trip(self):
+		# Trip starts ~10 minutes ago -> recent -> should set current_driver.
 		t = _new_trip(self.vehicle, self.driver, start_odo=10000, end_odo=10080)
+		t.start_datetime = (datetime.now() - timedelta(minutes=10)).isoformat()
+		t.end_datetime = datetime.now().isoformat()
 		t.insert()
 		t.submit()
 		self.assertEqual(
 			frappe.db.get_value("Vehicle", self.vehicle, "current_driver"),
 			self.driver,
+		)
+
+	def test_on_submit_does_not_set_current_driver_for_backdated_trip(self):
+		# Trip from 60 days ago should NOT silently rewrite current_driver.
+		other_driver = _ensure_driver("TEST-DR-OTHER", "Other Driver", days_to_expiry=365)
+		frappe.db.set_value("Vehicle", self.vehicle, "current_driver", other_driver)
+		t = _new_trip(self.vehicle, self.driver, start_odo=10000, end_odo=10080)
+		t.start_datetime = (datetime.now() - timedelta(days=60)).isoformat()
+		t.end_datetime = (datetime.now() - timedelta(days=60, hours=-1)).isoformat()
+		t.insert()
+		t.submit()
+		self.assertEqual(
+			frappe.db.get_value("Vehicle", self.vehicle, "current_driver"),
+			other_driver,
 		)
 
 	def test_submit_requires_end_fields(self):
@@ -77,16 +91,20 @@ class TestTrip(unittest.TestCase):
 		t2.insert()
 		t2.submit()
 
-		# Cancel the LAST trip; odometer should fall back to the previous high water mark.
 		t2.cancel()
-		odo = frappe.db.get_value("Vehicle", self.vehicle, "odometer_km")
-		self.assertEqual(odo, 10200)
+		self.assertEqual(frappe.db.get_value("Vehicle", self.vehicle, "odometer_km"), 10200)
+
+	def test_on_cancel_resets_to_zero_when_no_remaining_trips(self):
+		t = _new_trip(self.vehicle, self.driver, start_odo=10000, end_odo=10250)
+		t.insert()
+		t.submit()
+		t.cancel()
+		self.assertEqual(frappe.db.get_value("Vehicle", self.vehicle, "odometer_km"), 0)
 
 
-# --------------------------------------------------- helpers (module-level)
+# --------------------------------------------------------- helpers (module-level)
 def _ensure_vehicle(reg_no: str, status: str, odo: int) -> str:
 	if not frappe.db.exists("Vehicle", reg_no):
-		# minimum viable vehicle (vehicle_type required? no — link is optional)
 		frappe.get_doc(
 			{
 				"doctype": "Vehicle",
@@ -104,19 +122,19 @@ def _ensure_driver(license_no: str, full_name: str, days_to_expiry: int) -> str:
 	existing = frappe.db.get_value("Driver", {"license_no": license_no}, "name")
 	if existing:
 		return existing
-	from datetime import date
-	from datetime import timedelta as _td
-
-	doc = frappe.get_doc(
-		{
-			"doctype": "Driver",
-			"full_name": full_name,
-			"license_no": license_no,
-			"license_expiry": date.today() + _td(days=days_to_expiry),
-			"status": "Active",
-		}
-	).insert(ignore_permissions=True)
-	return doc.name
+	return (
+		frappe.get_doc(
+			{
+				"doctype": "Driver",
+				"full_name": full_name,
+				"license_no": license_no,
+				"license_expiry": date.today() + timedelta(days=days_to_expiry),
+				"status": "Active",
+			}
+		)
+		.insert(ignore_permissions=True)
+		.name
+	)
 
 
 def _new_trip(vehicle: str, driver: str, *, start_odo: int, end_odo: int | None):

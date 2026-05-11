@@ -1,14 +1,17 @@
-"""Tests for Fuel Entry: total_cost computation and rejection rules."""
+"""Fuel Entry tests: total_cost computation, rejections, and odometer roll-forward."""
 
-import unittest
+from __future__ import annotations
+
 from datetime import date
 
 import frappe
+from frappe.tests import IntegrationTestCase
 
 
-class TestFuelEntry(unittest.TestCase):
+class TestFuelEntry(IntegrationTestCase):
 	@classmethod
 	def setUpClass(cls):
+		super().setUpClass()
 		if not frappe.db.exists("Vehicle", "TEST-FE-001"):
 			frappe.get_doc(
 				{
@@ -22,12 +25,9 @@ class TestFuelEntry(unittest.TestCase):
 			).insert(ignore_permissions=True)
 		cls.vehicle = "TEST-FE-001"
 
-	@classmethod
-	def tearDownClass(cls):
-		for name in frappe.get_all("Fuel Entry", filters={"vehicle": cls.vehicle}, pluck="name"):
-			frappe.delete_doc("Fuel Entry", name, force=True, ignore_permissions=True)
-		frappe.db.delete("Vehicle", {"name": cls.vehicle})
-		frappe.db.commit()
+	def setUp(self):
+		super().setUp()
+		frappe.db.set_value("Vehicle", self.vehicle, "odometer_km", 5000)
 
 	def test_total_cost_computed(self):
 		fe = frappe.get_doc(
@@ -67,3 +67,51 @@ class TestFuelEntry(unittest.TestCase):
 		)
 		with self.assertRaises(frappe.ValidationError):
 			fe.insert()
+
+	def test_after_insert_rolls_vehicle_odometer_forward(self):
+		fe = frappe.get_doc(
+			{
+				"doctype": "Fuel Entry",
+				"vehicle": self.vehicle,
+				"date": date.today(),
+				"litres": 30,
+				"cost_per_litre": 100,
+				"odometer": 5500,
+			}
+		)
+		fe.insert()
+		self.assertEqual(frappe.db.get_value("Vehicle", self.vehicle, "odometer_km"), 5500)
+
+	def test_after_insert_does_not_lower_odometer(self):
+		frappe.db.set_value("Vehicle", self.vehicle, "odometer_km", 6000)
+		fe = frappe.get_doc(
+			{
+				"doctype": "Fuel Entry",
+				"vehicle": self.vehicle,
+				"date": date.today(),
+				"litres": 30,
+				"cost_per_litre": 100,
+				"odometer": 5500,
+			}
+		)
+		fe.insert()
+		self.assertEqual(frappe.db.get_value("Vehicle", self.vehicle, "odometer_km"), 6000)
+
+	def test_save_does_not_re_propagate_after_initial_insert(self):
+		fe = frappe.get_doc(
+			{
+				"doctype": "Fuel Entry",
+				"vehicle": self.vehicle,
+				"date": date.today(),
+				"litres": 30,
+				"cost_per_litre": 100,
+				"odometer": 5500,
+			}
+		)
+		fe.insert()
+		# Manually lower the vehicle's odometer to verify a subsequent fuel-entry
+		# save does NOT push it back up — propagation lives in after_insert only.
+		frappe.db.set_value("Vehicle", self.vehicle, "odometer_km", 5000)
+		fe.notes = "edit"
+		fe.save()
+		self.assertEqual(frappe.db.get_value("Vehicle", self.vehicle, "odometer_km"), 5000)

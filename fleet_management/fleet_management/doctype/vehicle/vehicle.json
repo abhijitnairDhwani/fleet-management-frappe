@@ -53,29 +53,33 @@
    "label": "Vehicle Type",
    "options": "Vehicle Type",
    "in_list_view": 1,
-   "in_standard_filter": 1
+   "in_standard_filter": 1,
+   "search_index": 1
   },
   {
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Active\nIn-Use\nMaintenance\nRetired",
+   "options": "Active\nMaintenance\nRetired",
    "default": "Active",
    "in_list_view": 1,
-   "in_standard_filter": 1
+   "in_standard_filter": 1,
+   "permlevel": 1
   },
   {
    "fieldname": "current_driver",
    "fieldtype": "Link",
    "label": "Current Driver",
-   "options": "Driver"
+   "options": "Driver",
+   "search_index": 1
   },
   {"fieldname": "section_break_1", "fieldtype": "Section Break", "label": "Odometer"},
   {
    "fieldname": "odometer_km",
    "fieldtype": "Float",
    "label": "Odometer (km)",
-   "default": 0
+   "default": 0,
+   "permlevel": 1
   },
   {"fieldname": "column_break_2", "fieldtype": "Column Break"},
   {"fieldname": "notes", "fieldtype": "Small Text", "label": "Notes"}
@@ -92,15 +96,17 @@
  "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
-  {"role": "System Manager", "create": 1, "delete": 1, "email": 1, "export": 1, "print": 1, "read": 1, "report": 1, "share": 1, "write": 1},
-  {"role": "Fleet Manager", "create": 1, "delete": 0, "email": 1, "export": 1, "print": 1, "read": 1, "report": 1, "share": 1, "write": 1},
-  {"role": "Driver Role", "read": 1, "report": 0},
-  {"role": "Mechanic", "read": 1, "write": 1, "report": 1}
+  {"role": "System Manager", "create": 1, "delete": 1, "email": 1, "export": 1, "print": 1, "read": 1, "report": 1, "share": 1, "write": 1, "permlevel": 0},
+  {"role": "System Manager", "read": 1, "write": 1, "permlevel": 1},
+  {"role": "Fleet Manager", "create": 1, "delete": 0, "email": 1, "export": 1, "print": 1, "read": 1, "report": 1, "share": 1, "write": 1, "permlevel": 0},
+  {"role": "Fleet Manager", "read": 1, "write": 1, "permlevel": 1},
+  {"role": "Driver Role", "read": 1, "report": 0, "permlevel": 0},
+  {"role": "Mechanic", "read": 1, "write": 1, "report": 1, "permlevel": 0},
+  {"role": "Mechanic", "read": 1, "permlevel": 1}
  ],
  "search_fields": "registration_no,make,model",
  "sort_field": "modified",
  "sort_order": "DESC",
  "title_field": "registration_no",
- "track_changes": 1,
- "states": []
+ "track_changes": 1
 }
