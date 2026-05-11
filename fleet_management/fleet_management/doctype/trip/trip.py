@@ -27,18 +27,27 @@ class Trip(Document):
 	def on_cancel(self):
 		self.status = "Cancelled"
 		vehicle = frappe.get_doc("Vehicle", self.vehicle)
-		new_max = frappe.db.sql(
-			"""SELECT MAX(end_odo) FROM `tabTrip`
+		# Roll the odometer back to the highest end_odo of any *remaining* submitted
+		# trip for this vehicle. The starting odometer at vehicle creation acts as a floor.
+		new_max = (
+			frappe.db.sql(
+				"""SELECT MAX(end_odo) FROM `tabTrip`
 			   WHERE vehicle=%s AND docstatus=1 AND name != %s""",
-			(self.vehicle, self.name),
-		)[0][0] or 0
-		vehicle.odometer_km = max(vehicle.odometer_km or 0, new_max)
+				(self.vehicle, self.name),
+			)[0][0]
+			or 0
+		)
+		vehicle.odometer_km = new_max
 		vehicle.save(ignore_permissions=True)
 
 	def _compute_distance(self):
 		if self.start_odo is not None and self.end_odo is not None:
 			if self.end_odo < self.start_odo:
-				frappe.throw(_("End odometer ({0}) cannot be less than start odometer ({1}).").format(self.end_odo, self.start_odo))
+				frappe.throw(
+					_("End odometer ({0}) cannot be less than start odometer ({1}).").format(
+						self.end_odo, self.start_odo
+					)
+				)
 			self.distance_km = self.end_odo - self.start_odo
 		else:
 			self.distance_km = 0
@@ -48,7 +57,11 @@ class Trip(Document):
 			return
 		vstatus = frappe.db.get_value("Vehicle", self.vehicle, "status")
 		if vstatus in ("Retired", "Maintenance") and self.docstatus == 0:
-			frappe.throw(_("Vehicle {0} is currently {1} and cannot be assigned to a trip.").format(self.vehicle, vstatus))
+			frappe.throw(
+				_("Vehicle {0} is currently {1} and cannot be assigned to a trip.").format(
+					self.vehicle, vstatus
+				)
+			)
 
 	def _check_driver_active(self):
 		if not self.driver:
