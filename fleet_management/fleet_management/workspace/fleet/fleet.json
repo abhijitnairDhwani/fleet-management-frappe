@@ -1,0 +1,165 @@
+{
+ "app": "fleet_management",
+ "charts": [
+  {"chart_name": "Trips per Week", "label": "Trips per Week"},
+  {"chart_name": "Fuel Cost by Month", "label": "Fuel Cost by Month"},
+  {"chart_name": "Maintenance Cost by Type", "label": "Maintenance Cost by Type"},
+  {"chart_name": "Vehicle Status Mix", "label": "Vehicle Status Mix"}
+ ],
+ "content": "[{\"id\":\"hdrOps000\",\"type\":\"header\",\"data\":{\"text\":\"Operations\",\"level\":4,\"col\":12}},{\"id\":\"ncActVeh1\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Active Vehicles\",\"col\":3}},{\"id\":\"ncInMaint\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Vehicles In Maintenance\",\"col\":3}},{\"id\":\"ncActDrv1\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Active Drivers\",\"col\":3}},{\"id\":\"ncOpenTr1\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Open Trips\",\"col\":3}},{\"id\":\"ncFuelSp1\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Fuel Spend\",\"col\":6}},{\"id\":\"ncDist001\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Fleet Distance\",\"col\":6}},{\"id\":\"hdrTrend1\",\"type\":\"header\",\"data\":{\"text\":\"Activity Trends\",\"level\":4,\"col\":12}},{\"id\":\"chTripsWk\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Trips per Week\",\"col\":12}},{\"id\":\"chFuelMon\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Fuel Cost by Month\",\"col\":6}},{\"id\":\"chMaintTy\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Maintenance Cost by Type\",\"col\":6}},{\"id\":\"chStatMix\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Vehicle Status Mix\",\"col\":12}},{\"id\":\"hdrQA0001\",\"type\":\"header\",\"data\":{\"text\":\"Quick Actions\",\"level\":4,\"col\":12}},{\"id\":\"scTrip001\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"New Trip\",\"col\":3}},{\"id\":\"scMaint01\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Log Maintenance\",\"col\":3}},{\"id\":\"scFuel001\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Add Fuel Entry\",\"col\":3}},{\"id\":\"scLicWat1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"License Watch\",\"col\":3}},{\"id\":\"hdrMast01\",\"type\":\"header\",\"data\":{\"text\":\"Masters\",\"level\":4,\"col\":12}},{\"id\":\"cdMast001\",\"type\":\"card\",\"data\":{\"card_name\":\"Fleet Master Data\",\"col\":4}},{\"id\":\"cdOps0001\",\"type\":\"card\",\"data\":{\"card_name\":\"Operations\",\"col\":4}},{\"id\":\"cdMaint01\",\"type\":\"card\",\"data\":{\"card_name\":\"Maintenance & Fuel\",\"col\":4}}]",
+ "creation": "2026-05-11 00:00:00",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "car",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "Fleet",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Fleet Master Data",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle",
+   "link_count": 0,
+   "link_to": "Vehicle",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Driver",
+   "link_count": 0,
+   "link_to": "Driver",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Type",
+   "link_count": 0,
+   "link_to": "Vehicle Type",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Operations",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Trip",
+   "link_count": 0,
+   "link_to": "Trip",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Maintenance & Fuel",
+   "link_count": 2,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Maintenance Log",
+   "link_count": 0,
+   "link_to": "Maintenance Log",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Fuel Entry",
+   "link_count": 0,
+   "link_to": "Fuel Entry",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-05-11 00:00:00",
+ "modified_by": "Administrator",
+ "module": "Fleet Management",
+ "name": "Fleet",
+ "number_cards": [
+  {"label": "Active Vehicles", "number_card_name": "Active Vehicles"},
+  {"label": "Vehicles In Maintenance", "number_card_name": "Vehicles In Maintenance"},
+  {"label": "Active Drivers", "number_card_name": "Active Drivers"},
+  {"label": "Open Trips", "number_card_name": "Open Trips"},
+  {"label": "Fuel Spend", "number_card_name": "Fuel Spend"},
+  {"label": "Fleet Distance", "number_card_name": "Fleet Distance"}
+ ],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "restrict_to_domain": "",
+ "roles": [],
+ "sequence_id": 1.0,
+ "shortcuts": [
+  {
+   "color": "Green",
+   "doc_view": "New",
+   "format": "{} Active",
+   "label": "New Trip",
+   "link_to": "Trip",
+   "stats_filter": "[[\"docstatus\",\"=\",0]]",
+   "type": "DocType"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "New",
+   "label": "Log Maintenance",
+   "link_to": "Maintenance Log",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Blue",
+   "doc_view": "New",
+   "label": "Add Fuel Entry",
+   "link_to": "Fuel Entry",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "label": "License Watch",
+   "link_to": "Driver",
+   "stats_filter": "[[\"status\",\"=\",\"Active\"]]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Fleet",
+ "type": "Workspace"
+}
