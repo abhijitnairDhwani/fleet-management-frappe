@@ -1,0 +1,42 @@
+[
+ {
+  "description": "Standard passenger sedan",
+  "docstatus": 0,
+  "doctype": "Vehicle Type",
+  "modified": "2026-05-11 13:41:05.713546",
+  "name": "Sedan",
+  "type_name": "Sedan"
+ },
+ {
+  "description": "Sport Utility Vehicle",
+  "docstatus": 0,
+  "doctype": "Vehicle Type",
+  "modified": "2026-05-11 13:41:05.875665",
+  "name": "SUV",
+  "type_name": "SUV"
+ },
+ {
+  "description": "Light or heavy goods truck",
+  "docstatus": 0,
+  "doctype": "Vehicle Type",
+  "modified": "2026-05-11 13:41:05.876199",
+  "name": "Truck",
+  "type_name": "Truck"
+ },
+ {
+  "description": "Cargo or passenger van",
+  "docstatus": 0,
+  "doctype": "Vehicle Type",
+  "modified": "2026-05-11 13:41:05.876585",
+  "name": "Van",
+  "type_name": "Van"
+ },
+ {
+  "description": "Two-wheeler",
+  "docstatus": 0,
+  "doctype": "Vehicle Type",
+  "modified": "2026-05-11 13:41:05.876939",
+  "name": "Motorbike",
+  "type_name": "Motorbike"
+ }
+]

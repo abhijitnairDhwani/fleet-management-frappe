@@ -12,10 +12,24 @@ app_email = "abhijit.nair@dhwaniris.com"
 app_license = "mit"
 
 # ----------------------------------------------------------------------------
-# Install / fixtures
+# Fixtures
 # ----------------------------------------------------------------------------
+#
+# Roles and the Vehicle Type master are shipped as fixtures. Frappe's fixture
+# sync runs on every `bench install-app` and `bench migrate`, so installing
+# this app on a fresh site is enough to bring up the seed data idempotently.
+# No imperative install.py needed.
 
-after_install = "fleet_management.install.after_install"
+fixtures = [
+	{
+		"dt": "Role",
+		"filters": [["role_name", "in", ["Fleet Manager", "Mechanic", "Driver Role"]]],
+	},
+	{
+		"dt": "Vehicle Type",
+		"filters": [["name", "in", ["Sedan", "SUV", "Truck", "Van", "Motorbike"]]],
+	},
+]
 
 # ----------------------------------------------------------------------------
 # Document events — cross-doctype writes routed to the vehicle_state service
