@@ -20,3 +20,11 @@ node_modules/
 # Local env / secrets
 .env
 *.local
+
+# Tooling caches
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+
+# Frappe tracker file (per-site)
+fleet_management/fleet_management/.frappe
