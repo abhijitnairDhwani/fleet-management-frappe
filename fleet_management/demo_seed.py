@@ -158,6 +158,23 @@ FUEL_STATIONS = [
 
 
 def seed():
+	# Reset the random state at the entry point so re-running ``seed()`` after a
+	# partial failure produces the same dataset rather than continuing from
+	# wherever the previous run left off.
+	_RANDOM.seed(42)
+
+	# Top-level idempotency guard: if the dataset is already in place, do
+	# nothing. Per-function guards below remain as a safety net.
+	if (
+		frappe.db.count("Driver") >= len(DRIVERS)
+		and frappe.db.count("Vehicle") >= len(VEHICLES)
+		and frappe.db.count("Trip", {"docstatus": 1}) >= 50
+		and frappe.db.count("Fuel Entry") >= 30
+		and frappe.db.count("Maintenance Log", {"docstatus": 1}) >= 15
+	):
+		print("Seed already present — nothing to do.")
+		return
+
 	_seed_drivers()
 	_seed_vehicles()
 	_assign_current_drivers()
@@ -194,8 +211,12 @@ def _assign_current_drivers():
 	d_names = _driver_names()
 	v_names = _vehicle_names()
 	for i, v in enumerate(v_names):
-		if i < len(d_names):
-			frappe.db.set_value("Vehicle", v, "current_driver", d_names[i % len(d_names)])
+		if i >= len(d_names):
+			continue
+		# Don't stomp an existing assignment on re-run.
+		if frappe.db.get_value("Vehicle", v, "current_driver"):
+			continue
+		frappe.db.set_value("Vehicle", v, "current_driver", d_names[i % len(d_names)])
 
 
 def _seed_trips():
@@ -337,8 +358,24 @@ def _seed_fuel():
 		).insert(ignore_permissions=True)
 
 
-def reset_demo():
-	"""Drop all demo records (for re-seeding clean). Submittable docs cancelled first."""
+def reset_demo(confirm: str | None = None):
+	"""Wipe ALL Fleet Management data from this site. Nuclear — read carefully.
+
+	Guard rails:
+	* Runs only when the site has ``developer_mode = 1``. Production sites
+	  refuse the call.
+	* Caller must pass ``confirm="WIPE-FLEET"`` so accidental invocations
+	  (typos, scheduled jobs, copy-paste) are rejected.
+
+	This deletes *every* Vehicle / Driver / Trip / Maintenance Log / Fuel
+	Entry — not just rows created by :func:`seed`. If you need a "demo
+	subset only" wipe, tag your seed rows with a custom field first.
+	"""
+	if not frappe.conf.developer_mode:
+		frappe.throw("reset_demo refuses to run unless the site has developer_mode = 1.")
+	if confirm != "WIPE-FLEET":
+		frappe.throw('reset_demo requires confirm="WIPE-FLEET" (case-sensitive) to proceed.')
+
 	for dt in ("Fuel Entry", "Trip", "Maintenance Log"):
 		for name in frappe.get_all(dt, pluck="name"):
 			doc = frappe.get_doc(dt, name)
