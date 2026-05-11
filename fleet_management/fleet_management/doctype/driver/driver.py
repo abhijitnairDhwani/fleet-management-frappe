@@ -23,9 +23,7 @@ class Driver(Document):
 		elif exp <= today + timedelta(days=30):
 			days_left = (exp - today).days
 			frappe.msgprint(
-				_("License for {0} expires in {1} day(s) on {2}.").format(
-					self.full_name, days_left, exp
-				),
+				_("License for {0} expires in {1} day(s) on {2}.").format(self.full_name, days_left, exp),
 				title=_("License Expiring Soon"),
 				indicator="orange",
 			)

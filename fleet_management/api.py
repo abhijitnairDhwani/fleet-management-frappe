@@ -101,9 +101,7 @@ def fleet_dashboard() -> dict:
 		"vehicles_active": frappe.db.count("Vehicle", {"status": "Active"}),
 		"vehicles_in_maintenance": frappe.db.count("Vehicle", {"status": "Maintenance"}),
 		"drivers": frappe.db.count("Driver", {"status": "Active"}),
-		"trips_open": frappe.db.count(
-			"Trip", {"status": ["in", ["Planned", "In-Progress"]], "docstatus": 0}
-		),
+		"trips_open": frappe.db.count("Trip", {"status": ["in", ["Planned", "In-Progress"]], "docstatus": 0}),
 	}
 
 	month_distance = frappe.db.sql(
