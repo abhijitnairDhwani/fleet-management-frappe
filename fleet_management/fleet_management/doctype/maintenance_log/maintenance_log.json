@@ -1,0 +1,72 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2026-05-11 00:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "is_submittable": 1,
+ "field_order": [
+  "naming_series",
+  "vehicle",
+  "service_date",
+  "column_break_1",
+  "service_type",
+  "odometer_at_service",
+  "section_break_1",
+  "cost",
+  "vendor",
+  "column_break_2",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "MNT-.YYYY.-.####",
+   "default": "MNT-.YYYY.-.####",
+   "reqd": 1
+  },
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "label": "Vehicle",
+   "options": "Vehicle",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {"fieldname": "service_date", "fieldtype": "Date", "label": "Service Date", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "column_break_1", "fieldtype": "Column Break"},
+  {
+   "fieldname": "service_type",
+   "fieldtype": "Select",
+   "label": "Service Type",
+   "options": "Routine\nRepair\nTyre Change\nOil Change\nBreakdown\nOther",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {"fieldname": "odometer_at_service", "fieldtype": "Float", "label": "Odometer at Service (km)"},
+  {"fieldname": "section_break_1", "fieldtype": "Section Break"},
+  {"fieldname": "cost", "fieldtype": "Currency", "label": "Cost", "in_list_view": 1},
+  {"fieldname": "vendor", "fieldtype": "Data", "label": "Vendor"},
+  {"fieldname": "column_break_2", "fieldtype": "Column Break"},
+  {"fieldname": "notes", "fieldtype": "Small Text", "label": "Notes"}
+ ],
+ "links": [],
+ "modified": "2026-05-11 00:00:00",
+ "modified_by": "Administrator",
+ "module": "Fleet Management",
+ "name": "Maintenance Log",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {"role": "System Manager", "create": 1, "delete": 1, "submit": 1, "cancel": 1, "amend": 1, "email": 1, "export": 1, "print": 1, "read": 1, "report": 1, "share": 1, "write": 1},
+  {"role": "Fleet Manager", "create": 1, "submit": 1, "cancel": 1, "amend": 1, "read": 1, "report": 1, "write": 1, "print": 1, "export": 1},
+  {"role": "Mechanic", "create": 1, "submit": 1, "read": 1, "report": 1, "write": 1, "print": 1}
+ ],
+ "search_fields": "vehicle,service_type,vendor",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "states": []
+}
